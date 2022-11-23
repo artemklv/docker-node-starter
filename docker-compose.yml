@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - USER_ID
+        - USER_NAME
+        - GROUP_ID
+        - GROUP_NAME
+    env_file:
+      - .env
+    restart: unless-stopped
+    expose:
+      - 3001
+    volumes:
+      - ./backend:/home/project/backend
+    command: yarn develop
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - USER_ID
+        - USER_NAME
+        - GROUP_ID
+        - GROUP_NAME
+    env_file:
+      - .env
+    restart: unless-stopped
+    expose:
+      - 3000
+    volumes:
+      - ./frontend:/home/project/frontend
+    command: yarn start
+
+  proxy:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+      - frontend
